@@ -116,6 +116,18 @@ export function Timer() {
     }
   };
 
+  const handleUpdateTimer = async (updates: { projectId?: string | null; description?: string }) => {
+    try {
+      await fetch("/api/timer", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updates),
+      });
+    } catch (err) {
+      console.error("Failed to update timer:", err);
+    }
+  };
+
   const handleResume = async () => {
     try {
       await fetch("/api/timer", {
@@ -408,9 +420,14 @@ export function Timer() {
             <label className="block text-sm text-gray-400 mb-1">Project</label>
             <select
               value={store.projectId || ""}
-              onChange={(e) => store.setProjectId(e.target.value || null)}
-              disabled={store.isRunning}
-              className="w-full px-3 py-2 bg-[#1a1a1a] border border-gray-700 rounded-lg text-white focus:outline-none focus:border-teal-500 disabled:opacity-50"
+              onChange={(e) => {
+                const newProjectId = e.target.value || null;
+                store.setProjectId(newProjectId);
+                if (store.isRunning) {
+                  handleUpdateTimer({ projectId: newProjectId });
+                }
+              }}
+              className="w-full px-3 py-2 bg-[#1a1a1a] border border-gray-700 rounded-lg text-white focus:outline-none focus:border-teal-500"
             >
               <option value="">No project</option>
               {projects.map((project) => (
@@ -446,9 +463,13 @@ export function Timer() {
             type="text"
             value={store.description}
             onChange={(e) => store.setDescription(e.target.value)}
-            disabled={store.isRunning}
+            onBlur={() => {
+              if (store.isRunning) {
+                handleUpdateTimer({ description: store.description });
+              }
+            }}
             placeholder="What are you working on?"
-            className="w-full px-3 py-2 bg-[#1a1a1a] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-teal-500 disabled:opacity-50"
+            className="w-full px-3 py-2 bg-[#1a1a1a] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-teal-500"
           />
         </div>
 

@@ -33,10 +33,20 @@ export function ClientList() {
   }, []);
 
   const fetchClients = async () => {
-    const res = await fetch("/api/clients");
-    const data = await res.json();
-    setClients(data);
-    setLoading(false);
+    try {
+      const res = await fetch("/api/clients");
+      if (!res.ok) {
+        console.error("Failed to fetch clients:", res.status);
+        setLoading(false);
+        return;
+      }
+      const data = await res.json();
+      setClients(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Failed to fetch clients:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const toggleClient = (clientId: string) => {

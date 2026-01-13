@@ -22,6 +22,7 @@ interface Entry {
   invoiced: boolean;
   createdAt: string;
   project: Project | null;
+  projectId: string | null;
 }
 
 export default function DashboardPage() {
@@ -187,6 +188,7 @@ export default function DashboardPage() {
           entries={entries}
           onToggleInvoiced={handleToggleInvoiced}
           onDelete={handleDelete}
+          onRefresh={fetchEntries}
         />
       )}
     </div>
