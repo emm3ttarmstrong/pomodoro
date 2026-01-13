@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Client {
+  id        String    @id @default(uuid())
+  name      String
+  projects  Project[]
+  createdAt DateTime  @default(now())
+}
+
+model Project {
+  id        String      @id @default(uuid())
+  name      String
+  clientId  String
+  client    Client      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  entries   TimeEntry[]
+  createdAt DateTime    @default(now())
+}
+
+model TimeEntry {
+  id          String    @id @default(uuid())
+  description String?
+  startTime   DateTime?
+  endTime     DateTime?
+  duration    Int       // Minutes
+  invoiced    Boolean   @default(false)
+  projectId   String?
+  project     Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  createdAt   DateTime  @default(now())
+}
+
+model ActiveTimer {
+  id          String    @id @default("active")
+  startTime   DateTime
+  projectId   String?
+  description String?
+  isPaused    Boolean   @default(false)
+  pausedAt    DateTime?
+  accumulated Int       @default(0) // Seconds accumulated before pause
+}
+
+model Settings {
+  id            String @id @default("settings")
+  workDuration  Int    @default(25) // Minutes
+  breakDuration Int    @default(5)  // Minutes
+}
